@@ -1,5 +1,5 @@
 import "./style.css"
-
+import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import * as THREE from "three"
 
 // Создаем сцену
@@ -26,4 +26,42 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // Устанавливаем позицию камеры вдоль оси Z
 camera.position.setZ(30);
 
-renderer.render(scene, camera)
+// Создаем геометрию, в данном случае - тор
+const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
+
+// Создаем материал для тора, в данном случае - желтый цвет
+const material = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+
+// Создаем объект Mesh используя геометрию и материал, затем добавляем его в сцену
+const torus = new THREE.Mesh(geometry, material);
+scene.add(torus);
+
+// Создаем и добавляем в сцену точечный и окружающий свет
+const pointLight = new THREE.PointLight(0xffffff);
+pointLight.position.set(5, 5, 5);
+const ambientLight = new THREE.AmbientLight(0xffffff);
+scene.add(pointLight, ambientLight);
+
+// Создаем и добавляем в сцену помощники точечного света и сетку
+const lightHelper = new THREE.PointLightHelper(pointLight);
+const gridHelper = new THREE.GridHelper(200, 50);
+scene.add(lightHelper, gridHelper);
+
+// Создаем OrbitControls - объект для управления камерой, затем добавляем его в сцену
+const controls = new OrbitControls(camera, renderer.domElement);
+
+// Функция для анимации объекта, в данном случае - поворот тора и обновление OrbitControls
+function animate() {
+    requestAnimationFrame(animate);
+
+    torus.rotation.x += 0.01;
+    torus.rotation.y += 0.01;
+    torus.rotation.z += 0.01;
+
+    controls.update(); // обновляем состояние камеры в зависимости от перемещений мыши
+
+    renderer.render(scene, camera); // рендерим сцену с помощью заданных ранее камеры и рендерера
+}
+
+// Запускаем анимацию
+animate();
